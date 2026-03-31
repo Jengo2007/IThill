@@ -1,0 +1,6 @@
+@IThill_academy_HostAddress = http://localhost:5183
+
+GET {{IThill_academy_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
