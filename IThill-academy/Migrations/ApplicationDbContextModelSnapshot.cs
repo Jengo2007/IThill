@@ -50,6 +50,34 @@ namespace IThill_academy.Migrations
                     b.ToTable("Courses");
                 });
 
+            modelBuilder.Entity("IThill_academy.Models.EmailCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("EmailCodes");
+                });
+
             modelBuilder.Entity("IThill_academy.Models.Enrollment", b =>
                 {
                     b.Property<int>("Id")
@@ -76,33 +104,6 @@ namespace IThill_academy.Migrations
                     b.ToTable("Enrollments");
                 });
 
-            modelBuilder.Entity("IThill_academy.Models.SmsCode", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SmsCodes");
-                });
-
             modelBuilder.Entity("IThill_academy.Models.Student", b =>
                 {
                     b.Property<Guid>("Id")
@@ -112,14 +113,22 @@ namespace IThill_academy.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsPhoneConfirmed")
+                    b.Property<bool>("IsEmailConfirmed")
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -133,6 +142,17 @@ namespace IThill_academy.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Students");
+                });
+
+            modelBuilder.Entity("IThill_academy.Models.EmailCode", b =>
+                {
+                    b.HasOne("IThill_academy.Models.Student", "Student")
+                        .WithMany("EmailCodes")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("IThill_academy.Models.Enrollment", b =>
@@ -152,6 +172,11 @@ namespace IThill_academy.Migrations
                     b.Navigation("Course");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("IThill_academy.Models.Student", b =>
+                {
+                    b.Navigation("EmailCodes");
                 });
 #pragma warning restore 612, 618
         }

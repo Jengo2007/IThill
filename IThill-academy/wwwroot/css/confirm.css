@@ -1,0 +1,51 @@
+/* confirm.css */
+
+/* Общий фон */
+body {
+    background-color: #ECEFF1; /* Mist Gray */
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Ячейки для кода */
+.code-cell {
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    font-size: 24px;
+    border: 2px solid #191970; /* Midnight Blue */
+    border-radius: 8px;
+    background-color: #fff;
+    transition: border-color 0.3s;
+}
+
+.code-cell:focus {
+    outline: none;
+    border-color: #0000cd; /* чуть светлее синий при фокусе */
+}
+
+/* Кнопка подтверждения */
+.btn-confirm {
+    background-color: #191970; /* Midnight Blue */
+    color: #ECEFF1;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 6px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-confirm:hover {
+    background-color: #ECEFF1;
+    color: #191970;
+    border: 2px solid #191970;
+}
+
+/* Ссылка повторной отправки */
+.resend-link {
+    color: #191970;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.resend-link:hover {
+    text-decoration: underline;
+}

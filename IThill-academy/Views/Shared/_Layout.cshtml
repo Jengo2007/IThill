@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - IThill Академия</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+</head>
+<body>
+<!-- Навигация -->
+<header class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-dark" href="/">IThill Академия</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <nav class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Главная</a></li>
+                <li class="nav-item"><a class="nav-link" href="/Courses">Курсы</a></li>
+                <li class="nav-item"><a class="nav-link" href="/About">О нас</a></li>
+                <li class="nav-item"><a class="btn btn-primary ms-3" href="/AccountMvc/Login">Войти</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+
+<!-- Контент -->
+<main role="main" class="pb-3">
+    @RenderBody()
+</main>
+
+<!-- Футер -->
+<footer class="bg-dark text-white text-center py-3">
+    <p>© 2026 IThill Академия | Все права защищены</p>
+    <p><a href="/Privacy" class="text-white">Политика конфиденциальности</a></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+@RenderSection("Scripts", required: false)
+</body>
+</html>

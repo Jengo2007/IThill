@@ -21,7 +21,8 @@ public class JwtService
         {
             new Claim(JwtRegisteredClaimNames.Sub, student.Id.ToString()),
             new Claim("phoneNumber", student.PhoneNumber),
-            new Claim(ClaimTypes.Role, student.Role.ToString())
+            new Claim("email", student.Email),
+            new Claim(ClaimTypes.Role, student.Role.ToString()) // ключевой момент!
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
@@ -37,4 +38,5 @@ public class JwtService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
 }

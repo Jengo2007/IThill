@@ -1,0 +1,50 @@
+/* admin.css */
+
+/* Общий фон */
+body {
+    background-color: #ECEFF1; /* Mist Gray */
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Боковая панель */
+aside.sidebar {
+    background-color: #191970; /* Midnight Blue */
+    color: #fff;
+    min-height: 100vh;
+}
+
+aside.sidebar h4 {
+    color: #ECEFF1;
+    font-weight: bold;
+}
+
+aside.sidebar .nav-link {
+    color: #ECEFF1;
+    transition: background-color 0.3s, color 0.3s;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+aside.sidebar .nav-link:hover {
+    background-color: #ECEFF1;
+    color: #191970;
+}
+
+/* Кнопка выхода */
+aside.sidebar form button {
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+/* Основной контент */
+main {
+    background-color: #ECEFF1;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+/* Footer */
+footer {
+    background-color: #191970;
+    color: #ECEFF1;
+}

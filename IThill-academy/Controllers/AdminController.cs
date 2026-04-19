@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IThill_academy.Controllers;
 
-[Authorize(Roles = "Admin")] // 👈 доступ только для Admin
+[Authorize(Roles = "Admin")] 
 [ApiController]
 [Route("api/[controller]")]
 public class AdminController : Controller
@@ -126,4 +126,17 @@ public class AdminController : Controller
         }
     }
 
+    [HttpDelete("DeleteStudent")]
+    public async Task<IActionResult> DeleteStudent(Guid studentId)
+    {
+        try
+        {
+            var student = await _authService.DeleteStudent(studentId);
+            return Ok(student);
+        }
+        catch(InvalidOperationException ex)
+        {
+            return BadRequest (ex.Message);
+        }
+    }
 }

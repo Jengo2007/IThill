@@ -7,6 +7,7 @@ using IThill_academy.Models;
 using IThill_academy.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IThill_academy.Controllers;
@@ -33,7 +34,9 @@ public class AuthController : Controller
                 FirstName = student.FirstName,
                 LastName = student.LastName,
                 PhoneNumber = student.PhoneNumber,
-                IsPhoneConfirmed = student.IsPhoneConfirmed,
+                Email = student.Email,
+                Password = student.Password,
+                IsEmailConfirmed = student.IsEmailConfirmed,
                 CreatedAt = student.CreatedAt.ToString("yyyy-MM-dd HH:mm"),
             };
             return Ok(response);
@@ -45,11 +48,11 @@ public class AuthController : Controller
     }
 
     [HttpPost("Verify")]
-    public async Task<ActionResult> Verify(VerifyPhoneDto dto)
+    public async Task<ActionResult> Verify(VerifyEmailDto dto)
     {
         try
         {
-            var result = await _authService.VeryfyPhone(dto);
+            var result = await _authService.VeryfyEmail(dto);
         }
         catch (InvalidOperationException ex)
         {
@@ -67,7 +70,7 @@ public class AuthController : Controller
             var token = await _authService.Login(dto, jwtService);
             if (token == null)
             {
-                return BadRequest("Неверный номер или телефон не подтверждён.");
+                return BadRequest("Неверный номер телефона или пароль.");
             }
 
             return Ok(new { Token = token });
@@ -104,9 +107,12 @@ public class AuthController : Controller
             student.FirstName,
             student.LastName,
             student.PhoneNumber,
-            student.IsPhoneConfirmed,
+            student.Email,
+            student.IsEmailConfirmed,
             CreatedAt = student.CreatedAt.ToString("dd.MM.yyyy HH:mm")
         };
         return Ok(response);
     }
+    
+   
 }

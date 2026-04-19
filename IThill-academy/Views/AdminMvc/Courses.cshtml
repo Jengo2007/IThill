@@ -1,0 +1,28 @@
+@model IEnumerable<IThill_academy.Models.Course>
+@{
+Layout = "_LayoutAdmin";
+}
+
+<h2>Список курсов</h2>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Название</th>
+        <th>Описание</th>
+        <th>Дата создания</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var course in Model)
+    {
+        <tr>
+            <td>@course.Id</td>
+            <td>@course.Title</td>
+            <td>@course.Description</td>
+            <td>@course.Duration.ToString("dd.MM.yyyy")</td>
+            <td>@course.Price</td>
+
+        </tr>
+    }
+    </tbody>
+</table>

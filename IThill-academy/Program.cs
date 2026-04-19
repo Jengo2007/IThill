@@ -1,8 +1,10 @@
 using System.Text;
 using IThill_academy.Auth;
 using IThill_academy.Data;
+using IThill_academy.Models;
 using IThill_academy.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -19,7 +21,9 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CourseService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<EnrollmentService>();
+builder.Services.AddScoped<IPasswordHasher<Student> , PasswordHasher<Student>>();
 builder.Services.AddControllersWithViews();
+builder.Services.AddTransient<EmailService>();
 builder.Services.AddHttpClient("api", client =>
 {
     client.BaseAddress = new Uri("http://localhost:5183"); // адрес твоего API
@@ -75,7 +79,22 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
+
+    // 🔹 Добавляем чтение токена из cookie
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.ContainsKey("jwt"))
+            {
+                context.Token = context.Request.Cookies["jwt"];
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
 
 var app = builder.Build();
 
@@ -90,6 +109,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseRouting();
 
@@ -99,7 +119,8 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=CoursesMvc}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 
 app.MapControllers();

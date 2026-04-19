@@ -1,0 +1,25 @@
+@model IEnumerable<IThill_academy.Models.Enrollment>
+@{
+Layout = "_LayoutAdmin";
+}
+
+<h2>Записи студентов на курсы</h2>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Студент</th>
+        <th>Курс</th>
+        <th>Дата записи</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var enrollment in Model)
+    {
+        <tr>
+            <td>@enrollment.Student.FirstName @enrollment.Student.LastName</td>
+            <td>@enrollment.Course.Title</td>
+            <td>@enrollment.CreatedAt.ToString("dd.MM.yyyy")</td>
+        </tr>
+    }
+    </tbody>
+</table>

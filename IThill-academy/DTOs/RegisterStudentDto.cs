@@ -11,8 +11,13 @@ public class RegisterStudentDto
     [Required(ErrorMessage = "Номер телефона обязателен")]
     [RegularExpression(@"^\+992\d{9}$", ErrorMessage = "Телефон должен быть в формате +992XXXXXXXXX")]
     public string PhoneNumber { get; set; }=string.Empty;
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
     [Required(ErrorMessage = "Подтверждение кода обязателен")]
-    public bool IsPhoneConfirmed { get; set; }
+    public bool IsEmailConfirmed { get; set; }
+    [Required(ErrorMessage = "Пароль обязателен!")]
+    public string Password { get; set; } = string.Empty;
     public string CreatedAt { get; set; }=string.Empty;
 
 }

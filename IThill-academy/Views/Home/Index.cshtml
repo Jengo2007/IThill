@@ -1,0 +1,89 @@
+@{
+ViewData["Title"] = "Главная";
+Layout = "_Layout";
+}
+
+<!-- Hero Section -->
+<section class="hero text-center d-flex align-items-center">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-start">
+                <h1>Учись, твори, развивайся</h1>
+                <p>Путь в IT начинается здесь — от азов до продвинутых компетенций для успешной карьеры</p>
+                <a href="/Courses" class="btn btn-primary btn-lg">Начать обучение</a>
+            </div>
+            <div class="col-md-6">
+                <img src="@Url.Content("~/images/first.png")" class="img-fluid" alt="Студент с ноутбуком">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Преимущества -->
+<section class="bg-light py-5">
+    <div class="container">
+        <h2 class="mb-4">Почему выбирают нас</h2>
+        <div class="row">
+            <div class="col-md-4 d-flex">
+                <div class="card shadow-sm h-100">
+                    <img src="@Url.Content("~/images/mentors.jpeg")" class="card-img-top" alt="Обучение">
+                    <h5>Комплексное обучение</h5>
+                    <p>От базовых знаний до продвинутых навыков.</p>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex">
+                <div class="card shadow-sm h-100">
+                    <img src="@Url.Content("~/images/second.jpg")" class="card-img-top" alt="Проекты">
+                    <h5>Практические проекты</h5>
+                    <p>Учись на реальных кейсах и задачах.</p>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex">
+                <div class="card shadow-sm h-100">
+                    <img src="@Url.Content("~/images/third.jpg")" class="card-img-top" alt="Наставники">
+                    <h5> Поддержка наставников </h5>
+                    <p> Опытные преподаватели помогут на каждом шаге. </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Популярные курсы -->
+<section class="bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Популярные курсы</h2>
+        <div class="row">
+            <div class="col-md-4 d-flex">
+                <div class="card shadow-sm h-100">
+                    <img src="@Url.Content("~/images/python.png")" class="card-img-top" alt="Основы программирования">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">Основы программирования</h5>
+                        <p class="card-text">Научись писать код с нуля.</p>
+                        <a href="/Courses/Programming" class="btn btn-primary mt-auto">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex">
+                <div class="card shadow-sm h-100">
+                    <img src="@Url.Content("~/images/frontend.png")" class="card-img-top" alt="Веб-разработка">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">Веб-разработка</h5>
+                        <p class="card-text">Создавай сайты и веб-приложения.</p>
+                        <a href="/Courses/WebDevelopment" class="btn btn-primary mt-auto">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex">
+                <div class="card shadow-sm h-100">
+                    <img src="@Url.Content("~/images/computer.jpg")" class="card-img-top" alt="Data Science">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">Основы компьютера</h5>
+                        <p class="card-text">Работа с компьютером.</p>
+                        <a href="/Courses/DataScience" class="btn btn-primary mt-auto">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

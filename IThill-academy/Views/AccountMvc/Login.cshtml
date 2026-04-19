@@ -1,0 +1,32 @@
+@model IThill_academy.DTOs.LoginDto
+@{
+ViewData["Title"] = "Главная";
+Layout = "_Layout";
+}
+
+<h2>Login</h2>
+
+@if (TempData["Error"] != null)
+{
+    <p>@TempData["Error"]</p>
+}
+
+@if (TempData["Message"] != null)
+{
+    <p>@TempData["Message"]</p>
+}
+
+<form method="post" asp-controller="AccountMvc" asp-action="Login">
+
+    <div>
+        <label>Email</label>
+        <input type="text" name="Email" value="@Model?.Email" />
+    </div>
+
+    <div>
+        <label>Password</label>
+        <input type="password" name="Password" value="@Model?.Password" />
+    </div>
+
+    <button type="submit">Login</button>
+</form>
