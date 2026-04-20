@@ -13,7 +13,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "launchUrl": "AccountMvc/Login",
+      "launchUrl": "AccountMvc/Register",
       "applicationUrl": "http://localhost:5183",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

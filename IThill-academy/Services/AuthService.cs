@@ -18,65 +18,60 @@ public class AuthService
         _passwordHasher = passwordHasher;
         _emailService = emailService;
     }
-    public async Task<Student?> RegisterStudent(RegisterStudentDto dto)
+    public async Task RegisterStudent(RegisterStudentDto dto)
     {
-        var existingStudent= await _context.Students.FirstOrDefaultAsync(s=>s.PhoneNumber==dto.PhoneNumber||s.Email==dto.Email);
+        var existingStudent = await _context.Students
+            .FirstOrDefaultAsync(s => s.PhoneNumber == dto.PhoneNumber || s.Email == dto.Email);
         if (existingStudent != null)
-        {
-            throw new InvalidOperationException("Пользователь с таким номером или эмайлом уже сушествует");
-        }
-        var student = new Student
+            throw new InvalidOperationException("Пользователь с таким номером или email уже существует");
+
+        var code = new Random().Next(1000, 9999).ToString();
+
+        var pending = new PendingRegistration
         {
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            Password = dto.Password,
+            Password = _passwordHasher.HashPassword(null!, dto.Password),
             PhoneNumber = dto.PhoneNumber,
             Email = dto.Email,
-            IsEmailConfirmed = false,
-            CreatedAt=DateTime.UtcNow,
-            Role = UserRole.Student
-        };
-        student.Password=_passwordHasher.HashPassword(student, student.Password);
-        _context.Students.Add(student);
-        var code =new Random().Next(1000, 9999).ToString();
-        var sms = new EmailCode()
-        {
-            StudentId = student.Id,
             Code = code,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(3),
-            IsUsed = false
+            ExpiresAt = DateTime.UtcNow.AddMinutes(3)
         };
-        _context.EmailCodes.Add(sms);
-        var email= new EmailDto
-        {
-            
-            To = student.Email,
-            Subject = "Код подтверждения регистрации",
-            Body = $"Здравствуйте, {student.FirstName}! Ваш код подтверждения: {code}"
-        
-        } ;
-        
-        await _emailService.SendConfirmationCode(email);
+
+        _context.PendingRegistrations.Add(pending);
         await _context.SaveChangesAsync();
-        return student;
+
+        var email = new EmailDto
+        {
+            To = dto.Email,
+            Subject = "Код подтверждения регистрации",
+            Body = $"Здравствуйте, {dto.FirstName}! Ваш код подтверждения: {code}"
+        };
+
+        await _emailService.SendConfirmationCode(email);
     }
 
-    public async Task<bool> VeryfyEmail(VerifyEmailDto dto)
+
+    public async Task<bool> VerifyEmail(VerifyEmailDto dto)
     {
-        var student=await _context.Students.FirstOrDefaultAsync(s=>s.Email==dto.Email);
-        if (student == null)
-            throw new InvalidOperationException("Пользователь с таким email не найден");
-        var code = await _context.EmailCodes.FirstOrDefaultAsync(c =>
-            c.StudentId == student.Id && c.Code == dto.Code);
-        if (code == null) throw new InvalidOperationException("Код недействителен или истёк  ");
-        
-        if(code.IsUsed) return false;
-        
-        if(code.ExpiresAt < DateTime.UtcNow) return false;
-        code.IsUsed = true;
-        
-        
-        student.IsEmailConfirmed = true;
+        var pending=await _context.PendingRegistrations.FirstOrDefaultAsync(p=>p.Email==dto.Email&&p.Code==dto.Code);
+        if (pending == null)
+            throw new InvalidOperationException("Код недействителен или истёк");
+        if (pending.ExpiresAt < DateTime.UtcNow)
+            return false;
+        var student = new Student
+        {
+            FirstName = pending.FirstName,
+            LastName = pending.LastName,
+            Password = pending.Password,
+            PhoneNumber = pending.PhoneNumber,
+            Email = pending.Email,
+            IsEmailConfirmed = true,
+            CreatedAt = DateTime.UtcNow,
+            Role = UserRole.Student
+        };
+        _context.Students.Add(student);
+        _context.PendingRegistrations.Remove(pending);
 
         await _context.SaveChangesAsync();
         return true;

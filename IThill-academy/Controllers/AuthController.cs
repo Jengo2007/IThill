@@ -23,36 +23,26 @@ public class AuthController : Controller
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<Student>> Register(RegisterStudentDto dto)
+    public async Task<ActionResult> Register(RegisterStudentDto dto)
     {
         try
         {
-            var student = await _authService.RegisterStudent(dto);
-
-            var response = new RegisterStudentDto
-            {
-                FirstName = student.FirstName,
-                LastName = student.LastName,
-                PhoneNumber = student.PhoneNumber,
-                Email = student.Email,
-                Password = student.Password,
-                IsEmailConfirmed = student.IsEmailConfirmed,
-                CreatedAt = student.CreatedAt.ToString("yyyy-MM-dd HH:mm"),
-            };
-            return Ok(response);
+            await _authService.RegisterStudent(dto);
+            return Ok(new { message = "Регистрация прошла успешно, проверьте email для подтверждения" });
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(new { error = ex.Message });
         }
     }
+
 
     [HttpPost("Verify")]
     public async Task<ActionResult> Verify(VerifyEmailDto dto)
     {
         try
         {
-            var result = await _authService.VeryfyEmail(dto);
+            var result = await _authService.VerifyEmail(dto);
         }
         catch (InvalidOperationException ex)
         {

@@ -63,7 +63,7 @@ public class AccountMvcController : Controller
     {
         try
         {
-            var result = await _authService.VeryfyEmail(dto);
+            var result = await _authService.VerifyEmail(dto);
             if (result)
             {
                 TempData["Message"] = "Телефон подтвержден. Теперь можно войти.";
