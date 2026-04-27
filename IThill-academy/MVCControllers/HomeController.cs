@@ -9,4 +9,15 @@ public class HomeController : Controller
     {
         return View();
     }
+    public IActionResult StartLearning()
+    {
+        if (!User.Identity.IsAuthenticated)
+        {
+            // Пользователь не авторизован → отправляем на Login
+            return RedirectToAction("Login", "AccountMvc");
+        }
+
+        // Если авторизован → отправляем на курсы
+        return RedirectToAction("Index", "CoursesMvc");
+    }
 }

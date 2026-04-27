@@ -11,7 +11,7 @@ public class UpdateCourseDto
         public string Description { get; set; } 
         [Required(ErrorMessage = "Цуна курса обязателен")]
 
-        public string Price { get; set; }
+        public decimal Price { get; set; }
         [Required(ErrorMessage = "Цена курса обязателен")]
 
         public int Duration { get; set; }

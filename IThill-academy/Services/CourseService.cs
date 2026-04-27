@@ -42,19 +42,44 @@ public class CourseService
         return course;
     }
 
-    public async Task<Course> CreateCourse(CreateCourseDto course)
+    public async Task<Course> CreateCourse(CreateCourseDto dto)
     {
-        var courses = new Course
+        string? imagePath = null;
+
+        if (dto.Image != null && dto.Image.Length > 0)
         {
-            Title = course.Title,
-            Description = course.Description,
-            Price = course.Price,
-            Duration = course.Duration,
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var extension = Path.GetExtension(dto.Image.FileName).ToLower();
+
+            if (!allowedExtensions.Contains(extension))
+                throw new Exception("Разрешены только JPG и PNG");
+            var folder = Path.Combine("wwwroot", "images", "courses");
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            var fileName = Guid.NewGuid() + Path.GetExtension(dto.Image.FileName);
+            var savePath = Path.Combine(folder, fileName);
+
+            await using var stream = new FileStream(savePath, FileMode.Create);
+            await dto.Image.CopyToAsync(stream);
+
+            imagePath = $"/images/courses/{fileName}";
+        }
+
+        var course = new Course
+        {
+            Title = dto.Title,
+            Description = dto.Description,
+            Price = dto.Price,
+            Duration = dto.Duration,
+            ImagePath = imagePath,
         };
-        _context.Courses.Add(courses);
+
+        _context.Courses.Add(course);
         await _context.SaveChangesAsync();
-        return courses;
+        return course;
     }
+
 
     public async Task<Course> UpdateCourseById(int id,UpdateCourseDto dto)
     {

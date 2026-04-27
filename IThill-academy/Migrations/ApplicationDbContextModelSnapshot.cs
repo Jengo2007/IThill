@@ -37,9 +37,11 @@ namespace IThill_academy.Migrations
                     b.Property<int>("Duration")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Price")
-                        .IsRequired()
+                    b.Property<string>("ImagePath")
                         .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Title")
                         .IsRequired()

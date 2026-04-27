@@ -1,0 +1,17 @@
+@model IThill_academy.Models.Course
+<tr>
+    <td>@Model.Title</td>
+    <td>@Model.Description</td>
+    <td>@Model.Price</td>
+    <td>@Model.Duration</td>
+    <td>
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <img src="@Model.ImagePath" width="100" />
+        }
+        else
+        {
+            <span class="text-muted">Нет фото</span>
+        }
+    </td>
+</tr>

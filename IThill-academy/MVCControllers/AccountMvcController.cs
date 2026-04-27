@@ -11,11 +11,13 @@ public class AccountMvcController : Controller
 {
     private readonly AuthService _authService;
     private readonly JwtService _jwtService;
+    private readonly ILogger<AccountMvcController> _logger;
 
-    public AccountMvcController(AuthService authService,JwtService jwtService)
+    public AccountMvcController(AuthService authService,JwtService jwtService,ILogger<AccountMvcController> logger)
     {
         _authService = authService;
         _jwtService = jwtService;
+        _logger = logger;
     }
     // GET
     public IActionResult Index()
@@ -34,18 +36,20 @@ public class AccountMvcController : Controller
     {
         if (!ModelState.IsValid)
         {
-            ModelState.AddModelError(string.Empty, "Что то пошло не так");
+            _logger.LogWarning("Регистрация не прошла валидацию для {Email}", dto.Email);
             return View(dto);
         }
 
         try
         {
             await _authService.RegisterStudent(dto);
+            _logger.LogInformation("Пользователь {Email} успешно зарегистрирован", dto.Email);
             TempData["Message"] = "Регистрация прошла успешно";
             return RedirectToAction("ConfirmEmail", new { email = dto.Email }); 
         }
         catch (InvalidOperationException ex)
         {
+            _logger.LogError(ex, "Ошибка при регистрации пользователя {Email}", dto.Email);
             TempData["Error"] = ex.Message;
             return View(dto);
         }
@@ -61,6 +65,12 @@ public class AccountMvcController : Controller
     [HttpPost]
     public async Task<IActionResult> ConfirmEmail(VerifyEmailDto dto)
     {
+        if (!ModelState.IsValid)
+        {
+            _logger.LogWarning("Код подтверждения не совподает или истек ");
+            return View(dto);
+        }
+
         try
         {
             var result = await _authService.VerifyEmail(dto);

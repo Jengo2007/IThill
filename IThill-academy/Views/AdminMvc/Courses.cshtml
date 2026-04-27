@@ -3,26 +3,120 @@
 Layout = "_LayoutAdmin";
 }
 
-<h2>Список курсов</h2>
-<table class="table table-striped">
+<h2 class="mb-3">Список курсов</h2>
+
+<div id="alert-container"></div>
+
+<!-- Кнопка для открытия модального окна -->
+<button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createCourseModal">
+    Добавить курс
+</button>
+
+<!-- Модальное окно -->
+<div class="modal fade" id="createCourseModal" tabindex="-1" aria-labelledby="createCourseLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="createCourseForm" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createCourseLabel">Создание курса</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="form-errors" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Название курса</label>
+                        <input type="text" name="Title" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <textarea name="Description" class="form-control" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Цена</label>
+                        <input type="text" name="Price" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Продолжительность (в днях)</label>
+                        <input type="number" name="Duration" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Фото курса</label>
+                        <input type="file" name="Image" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-success">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Таблица курсов -->
+<table class="table table-striped" id="coursesTable">
     <thead>
     <tr>
         <th>Название</th>
         <th>Описание</th>
-        <th>Дата создания</th>
+        <th>Цена</th>
+        <th>Продолжительность</th>
+        <th>Фото</th>
     </tr>
     </thead>
     <tbody>
     @foreach (var course in Model)
     {
-        <tr>
-            <td>@course.Id</td>
-            <td>@course.Title</td>
-            <td>@course.Description</td>
-            <td>@course.Duration.ToString("dd.MM.yyyy")</td>
-            <td>@course.Price</td>
-
-        </tr>
+    <tr>
+        <td>@course.Title</td>
+        <td>@course.Description</td>
+        <td>@course.Price</td>
+        <td>@course.Duration</td>
+        <td>
+            @if (!string.IsNullOrEmpty(course.ImagePath))
+            {
+            <img src="@course.ImagePath" alt="Фото курса" width="100" />
+            }
+            else
+            {
+            <span class="text-muted">Нет фото</span>
+            }
+        </td>
+    </tr>
     }
     </tbody>
 </table>
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#createCourseForm").on("submit", function (e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: '@Url.Action("CreateCourses", "AdminMvc")',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    $("#coursesTable tbody").append(result);
+                    $("#createCourseModal").modal('hide');
+                    $("#alert-container").html('<div class="alert alert-success">Курс успешно создан!</div>');
+                },
+                error: function (xhr) {
+                    $("#form-errors").html(xhr.responseText);
+                }
+        
+            });
+        });
+    });
+</script>
+}

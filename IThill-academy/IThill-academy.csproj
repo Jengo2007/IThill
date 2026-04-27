@@ -21,4 +21,12 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\images\courses\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\CoursesMvc\Index.cshtml" />
+    </ItemGroup>
+
 </Project>

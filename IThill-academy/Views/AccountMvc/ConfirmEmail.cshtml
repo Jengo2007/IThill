@@ -1,5 +1,6 @@
+@model IThill_academy.DTOs.VerifyEmailDto
 @{
-    Layout = null; // отдельная страница без общего layout
+Layout = null; // отдельная страница без общего layout
 }
 
 <!DOCTYPE html>
@@ -15,21 +16,49 @@
 <div class="container d-flex flex-column align-items-center justify-content-center vh-100">
     <h2 class="mb-4">Введите код подтверждения</h2>
 
-    <!-- 4 ячейки для кода -->
-    <div class="d-flex gap-3 mb-4">
-        <input type="text" maxlength="1" class="form-control code-cell" />
-        <input type="text" maxlength="1" class="form-control code-cell" />
-        <input type="text" maxlength="1" class="form-control code-cell" />
-        <input type="text" maxlength="1" class="form-control code-cell" />
-    </div>
+    <form asp-controller="AccountMvc" asp-action="ConfirmEmail" method="post" id="confirmForm">
+        @Html.AntiForgeryToken()
 
-    <!-- Кнопка подтверждения -->
-    <form asp-controller="AccountMvc" asp-action="ConfirmEmail" method="post">
+        <!-- Email скрытым полем -->
+        <input type="hidden" asp-for="Email" />
+
+        <!-- 4 ячейки для кода -->
+        <div class="d-flex gap-3 mb-4">
+            <input type="text" maxlength="1" class="form-control code-cell" />
+            <input type="text" maxlength="1" class="form-control code-cell" />
+            <input type="text" maxlength="1" class="form-control code-cell" />
+            <input type="text" maxlength="1" class="form-control code-cell" />
+        </div>
+
+        <!-- Скрытое поле для объединённого кода -->
+        <input type="hidden" asp-for="Code" id="fullCode" />
+
+        <!-- Кнопка подтверждения -->
         <button type="submit" class="btn btn-confirm">Подтвердить Email</button>
     </form>
 
     <!-- Ссылка на повторную отправку -->
-    <p class="mt-3">Не получили код? <a href="#" class="resend-link">Отправить повторно</a></p>
+    <p class="mt-3">Не получили код? <a asp-controller="AccountMvc" asp-action="ResendCode" class="resend-link">Отправить повторно</a></p>
 </div>
+
+<script>
+    // Скрипт: собираем 4 ячейки в одно поле перед отправкой
+    document.getElementById("confirmForm").addEventListener("submit", function () {
+        const cells = document.querySelectorAll(".code-cell");
+        let code = "";
+        cells.forEach(c => code += c.value);
+        document.getElementById("fullCode").value = code;
+    });
+
+    // Автоматический переход к следующей ячейке
+    const inputs = document.querySelectorAll(".code-cell");
+    inputs.forEach((input, index) => {
+        input.addEventListener("input", () => {
+            if (input.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+        });
+    });
+</script>
 </body>
 </html>
