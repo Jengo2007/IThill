@@ -76,6 +76,7 @@ public class AccountMvcController : Controller
             var result = await _authService.VerifyEmail(dto);
             if (result)
             {
+                _logger.LogInformation("Телефон подтвержден. Теперь можно войти.");
                 TempData["Message"] = "Телефон подтвержден. Теперь можно войти.";
                 return RedirectToAction("Login");
             }
@@ -105,6 +106,7 @@ public class AccountMvcController : Controller
 
                 if (token == null)
                 {
+                    _logger.LogWarning("Телефон не подтвержден");
                     TempData["Error"] = "Телефон не подтвержден.";
                     return View(dto);
                 }

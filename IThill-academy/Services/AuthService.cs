@@ -79,8 +79,8 @@ public class AuthService
 
     public async Task<string?> Login(LoginDto dto, JwtService jwtService)
     {
-        var student = await _context.Students.FirstOrDefaultAsync(s => s.Email == dto.Email);
-        if (student == null) throw new InvalidOperationException("Неверный email или email не подтвержден");
+        var student = await _context.Students.FirstOrDefaultAsync(s => s.Email == dto.Email||s.Password == dto.Password);
+        if (student == null) throw new InvalidOperationException("Неверный email или email не подтвержден или пароль неверный");
         if (!student.IsEmailConfirmed)throw new InvalidOperationException("Email не подтвержден");
 
         var result = _passwordHasher.VerifyHashedPassword(student, student.Password, dto.Password);

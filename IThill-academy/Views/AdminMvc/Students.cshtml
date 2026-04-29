@@ -1,9 +1,10 @@
-@model IEnumerable<IThill_academy.Models.Student>
+@model IThill_academy.Models.PagedResult<IThill_academy.Models.Student>
 @{
 Layout = "_LayoutAdmin";
 }
 
-<h2>Список студентов</h2>
+<h2 class="mb-3">Список студентов</h2>
+
 <table class="table table-striped">
     <thead>
     <tr>
@@ -15,15 +16,41 @@ Layout = "_LayoutAdmin";
     </tr>
     </thead>
     <tbody>
-    @foreach (var student in Model)
+    @foreach (var student in Model.Items)
     {
-        <tr>
-            <td>@student.FirstName</td>
-            <td>@student.LastName</td>
-            <td>@student.Email</td>
-            <td>@student.PhoneNumber</td>
-            <td>@student.CreatedAt.ToString("dd.MM.yyyy")</td>
-        </tr>
+    <tr>
+        <td>@student.FirstName</td>
+        <td>@student.LastName</td>
+        <td>@student.Email</td>
+        <td>@student.PhoneNumber</td>
+        <td>@student.CreatedAt.ToString("dd.MM.yyyy")</td>
+    </tr>
     }
     </tbody>
 </table>
+
+<!-- Пагинация -->
+<nav>
+    <ul class="pagination">
+        @if (Model.Page > 1)
+        {
+        <li class="page-item">
+            <a class="page-link" asp-action="Students" asp-route-page="@(Model.Page - 1)" asp-route-pageSize="@Model.PageSize">Назад</a>
+        </li>
+        }
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+        <li class="page-item @(i == Model.Page ? "active" : "")">
+            <a class="page-link" asp-action="Students" asp-route-page="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+        </li>
+        }
+
+        @if (Model.Page < Model.TotalPages)
+        {
+        <li class="page-item">
+            <a class="page-link" asp-action="Students" asp-route-page="@(Model.Page + 1)" asp-route-pageSize="@Model.PageSize">Вперёд</a>
+        </li>
+        }
+    </ul>
+</nav>

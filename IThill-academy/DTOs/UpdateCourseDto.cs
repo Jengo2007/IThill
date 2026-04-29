@@ -4,6 +4,8 @@ namespace IThill_academy.DTOs;
 
 public class UpdateCourseDto
 { 
+        [Required]
+        public int Id { get; set; }   
         [Required(ErrorMessage = "Имя обязателен")]
         public string Title { get; set; }
         [Required(ErrorMessage = "Описание курса обязателен")]
@@ -15,5 +17,6 @@ public class UpdateCourseDto
         [Required(ErrorMessage = "Цена курса обязателен")]
 
         public int Duration { get; set; }
+        public IFormFile? Image { get; set; }
         
 }

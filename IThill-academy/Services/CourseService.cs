@@ -107,6 +107,67 @@ public class CourseService
         await _context.SaveChangesAsync();
         return course;
     }
+    public async Task<Course> UpdateCourse(UpdateCourseDto dto)
+    {
+        var course = await _context.Courses.FindAsync(dto.Id);
+        if (course == null)
+        {
+            throw new InvalidOperationException("Курс не найден");
+        }
+
+        course.Title = dto.Title;
+        course.Description = dto.Description;
+        course.Price = dto.Price;
+        course.Duration = dto.Duration;
+
+        if (dto.Image != null)
+        {
+            // допустим, сохраняем путь к файлу
+            course.ImagePath = await SaveImageAsync(dto.Image);
+        }
+
+        await _context.SaveChangesAsync();
+        return course;
+    }
+    public async Task<Course> DeleteCourse(int id)
+    {
+        var course = await _context.Courses.FindAsync(id);
+        if (course == null)
+        {
+            throw new InvalidOperationException("Курс не найден");
+        }
+
+        _context.Courses.Remove(course);
+        await _context.SaveChangesAsync();
+
+        return course;
+    }
+    
+    private async Task<string?> SaveImageAsync(IFormFile image)
+    {
+        if (image == null || image.Length == 0)
+            return null;
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+        var extension = Path.GetExtension(image.FileName).ToLower();
+
+        if (!allowedExtensions.Contains(extension))
+            throw new Exception("Разрешены только JPG и PNG");
+
+        var folder = Path.Combine("wwwroot", "images", "courses");
+        if (!Directory.Exists(folder))
+            Directory.CreateDirectory(folder);
+
+        var fileName = Guid.NewGuid() + Path.GetExtension(image.FileName);
+        var savePath = Path.Combine(folder, fileName);
+
+        await using var stream = new FileStream(savePath, FileMode.Create);
+        await image.CopyToAsync(stream);
+
+        return $"/images/courses/{fileName}";
+    }
+
+    
 
     public async Task<List<Course>> Getcourses(string? search, string? sort)
     {

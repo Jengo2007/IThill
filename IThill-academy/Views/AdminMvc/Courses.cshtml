@@ -1,6 +1,6 @@
-@model IEnumerable<IThill_academy.Models.Course>
+@model IThill_academy.Models.PagedResult<IThill_academy.Models.Course>
 @{
-Layout = "_LayoutAdmin";
+    Layout = "_LayoutAdmin";
 }
 
 <h2 class="mb-3">Список курсов</h2>
@@ -12,20 +12,18 @@ Layout = "_LayoutAdmin";
     Добавить курс
 </button>
 
-<!-- Модальное окно -->
+<!-- Модальное окно для создания курса -->
 <div class="modal fade" id="createCourseModal" tabindex="-1" aria-labelledby="createCourseLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="createCourseForm" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
-
                 <div class="modal-header">
                     <h5 class="modal-title" id="createCourseLabel">Создание курса</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div id="form-errors" class="text-danger"></div>
-
                     <div class="mb-3">
                         <label class="form-label">Название курса</label>
                         <input type="text" name="Title" class="form-control" required />
@@ -56,50 +54,120 @@ Layout = "_LayoutAdmin";
     </div>
 </div>
 
+<!-- Модальное окно для редактирования курса -->
+<div class="modal fade" id="editCourseModal" tabindex="-1" aria-labelledby="editCourseLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editCourseForm" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" id="editCourseId" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCourseLabel">Редактирование курса</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="edit-form-errors" class="text-danger"></div>
+                    <div class="mb-3">
+                        <label class="form-label">Название курса</label>
+                        <input type="text" name="Title" id="editTitle" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <textarea name="Description" id="editDescription" class="form-control" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Цена</label>
+                        <input type="text" name="Price" id="editPrice" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Продолжительность (в днях)</label>
+                        <input type="number" name="Duration" id="editDuration" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Фото курса</label>
+                        <input type="file" name="Image" id="editImage" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-success">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Таблица курсов -->
 <table class="table table-striped" id="coursesTable">
     <thead>
-    <tr>
-        <th>Название</th>
-        <th>Описание</th>
-        <th>Цена</th>
-        <th>Продолжительность</th>
-        <th>Фото</th>
-    </tr>
+        <tr>
+            <th>Название</th>
+            <th>Описание</th>
+            <th>Цена</th>
+            <th>Продолжительность</th>
+            <th>Фото</th>
+            <th>Действия</th>
+        </tr>
     </thead>
     <tbody>
-    @foreach (var course in Model)
-    {
-    <tr>
-        <td>@course.Title</td>
-        <td>@course.Description</td>
-        <td>@course.Price</td>
-        <td>@course.Duration</td>
-        <td>
-            @if (!string.IsNullOrEmpty(course.ImagePath))
-            {
-            <img src="@course.ImagePath" alt="Фото курса" width="100" />
-            }
-            else
-            {
-            <span class="text-muted">Нет фото</span>
-            }
-        </td>
-    </tr>
-    }
+        @foreach (var course in Model.Items)
+        {
+            <tr id="course-@course.Id">
+                <td>@course.Title</td>
+                <td>@course.Description</td>
+                <td>@course.Price</td>
+                <td>@course.Duration</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(course.ImagePath))
+                    {
+                        <img src="@course.ImagePath" alt="Фото курса" width="100" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">Нет фото</span>
+                    }
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-warning edit-course" data-id="@course.Id">Редактировать</button>
+                    <button class="btn btn-sm btn-danger delete-course" data-id="@course.Id">Удалить</button>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 
+<!-- Пагинация -->
+<nav>
+    <ul class="pagination">
+        @if (Model.Page > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Courses" asp-route-page="@(Model.Page - 1)" asp-route-pageSize="@Model.PageSize">Назад</a>
+            </li>
+        }
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.Page ? "active" : "")">
+                <a class="page-link" asp-action="Courses" asp-route-page="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+            </li>
+        }
+        @if (Model.Page < Model.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Courses" asp-route-page="@(Model.Page + 1)" asp-route-pageSize="@Model.PageSize">Вперёд</a>
+            </li>
+        }
+    </ul>
+</nav>
+
 @section Scripts {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
 <script>
     $(document).ready(function () {
+        // Создание курса
         $("#createCourseForm").on("submit", function (e) {
             e.preventDefault();
-
             var formData = new FormData(this);
-
             $.ajax({
                 url: '@Url.Action("CreateCourses", "AdminMvc")',
                 type: 'POST',
@@ -114,7 +182,69 @@ Layout = "_LayoutAdmin";
                 error: function (xhr) {
                     $("#form-errors").html(xhr.responseText);
                 }
-        
+            });
+        });
+
+        // Удаление курса
+        $(document).on("click", ".delete-course", function () {
+            var id = $(this).data("id");
+            if (confirm("Вы уверены, что хотите удалить курс?")) {
+                $.ajax({
+                    url: '@Url.Action("DeleteCourse", "AdminMvc")',
+                    type: 'POST',
+                    data: { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (result) {
+                        if (result.success) {
+                            $("#course-" + result.id).remove();
+                            $("#alert-container").html('<div class="alert alert-success">Курс удалён!</div>');
+                        }
+                    },
+                    error: function (xhr) {
+                        alert("Ошибка: " + xhr.responseText);
+                    }
+                });
+            }
+        });
+
+                // Открытие модалки для редактирования
+        $(document).on("click", ".edit-course", function () {
+            var id = $(this).data("id");
+
+            $.get('@Url.Action("GetCourseById", "AdminMvc")', { id: id }, function (course) {
+                // Заполняем модалку данными курса
+                $("#editCourseId").val(course.id);
+                $("#editTitle").val(course.title);
+                $("#editDescription").val(course.description);
+                $("#editPrice").val(course.price);
+                $("#editDuration").val(course.duration);
+
+                // Открываем модалку
+                $("#editCourseModal").modal("show");
+            }).fail(function (xhr) {
+                alert("Ошибка при загрузке данных курса: " + xhr.responseText);
+            });
+        });
+
+        // Сохранение изменений курса
+        $("#editCourseForm").on("submit", function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: '@Url.Action("UpdateCourse", "AdminMvc")',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    // Заменяем строку в таблице на обновлённую
+                    $("#course-" + $("#editCourseId").val()).replaceWith(result);
+                    $("#editCourseModal").modal('hide');
+                    $("#alert-container").html('<div class="alert alert-success">Курс обновлён!</div>');
+                },
+                error: function (xhr) {
+                    $("#edit-form-errors").html(xhr.responseText);
+                }
             });
         });
     });
