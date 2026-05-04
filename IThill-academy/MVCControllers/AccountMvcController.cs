@@ -10,14 +10,16 @@ namespace IThill_academy.MVCControllers;
 public class AccountMvcController : Controller
 {
     private readonly AuthService _authService;
+    private readonly EmailService _emailService;
     private readonly JwtService _jwtService;
     private readonly ILogger<AccountMvcController> _logger;
 
-    public AccountMvcController(AuthService authService,JwtService jwtService,ILogger<AccountMvcController> logger)
+    public AccountMvcController(AuthService authService,JwtService jwtService,ILogger<AccountMvcController> logger,EmailService emailService)
     {
         _authService = authService;
         _jwtService = jwtService;
         _logger = logger;
+        _emailService = emailService;
     }
     // GET
     public IActionResult Index()
@@ -138,6 +140,31 @@ public class AccountMvcController : Controller
             }
             
         }
+        [HttpGet]
+        public async Task<IActionResult> ResendCode(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                TempData["Error"] = "Email не указан.";
+                return RedirectToAction("ConfirmEmail");
+            }
+
+            var result = await _emailService.ResendConfirmationCode(email);
+
+            if (!result)
+            {
+                TempData["Error"] = "Не удалось отправить код. Проверьте email.";
+            }
+            else
+            {
+                TempData["Message"] = "Новый код отправлен на вашу почту.";
+            }
+
+            // Возвращаем обратно на страницу подтверждения
+            return RedirectToAction("ConfirmEmail", new { email });
+        }
+
+        
         [HttpPost]
         public IActionResult Logout()
         {

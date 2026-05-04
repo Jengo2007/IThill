@@ -2,6 +2,7 @@ using IThill_academy.Data;
 using IThill_academy.Extensions;
 using IThill_academy.Models;
 using IThill_academy.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,13 +20,23 @@ public class CoursesMvcController : Controller
         _enrollmentService = enrollmentService;
         _context = context;
     }
+    [AllowAnonymous]
+    public async Task<IActionResult> Public()
+    {
+        var courses = await _context.Courses.ToListAsync();
+        return View(courses); // Views/CoursesMvc/Public.cshtml
+    } 
+    [Authorize(Roles = "Student")]
     public async Task<IActionResult> Index()
     {
+        if (!User.Identity.IsAuthenticated)
+        {
+            return RedirectToAction("Login", "AccountMvc");
+        }
         var courses = await _context.Courses.ToListAsync();
         return View(courses);
     }
-
-    [HttpPost]
+  
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Enroll( int courseId)
     {
@@ -49,4 +60,5 @@ public class CoursesMvcController : Controller
         return RedirectToAction("Index");
     }
 
+    
 }

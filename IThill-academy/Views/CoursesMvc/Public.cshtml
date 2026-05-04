@@ -1,0 +1,28 @@
+@model IEnumerable<IThill_academy.Models.Course>
+@{
+    ViewData["Title"] = "Курсы";
+    Layout = "_Layout";
+}
+
+<h2 class="mb-4">Наши курсы</h2>
+
+<div class="row">
+    @foreach (var course in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                @if (!string.IsNullOrEmpty(course.ImagePath))
+                {
+                    <img src="@course.ImagePath" class="card-img-top" alt="Фото курса">
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@course.Title</h5>
+                    <p class="card-text">@course.Description</p>
+                    <p><strong>Цена:</strong> @course.Price</p>
+                    <p><strong>Продолжительность:</strong> @course.Duration дней</p>
+                    <!-- Здесь нет кнопки "Записаться" -->
+                </div>
+            </div>
+        </div>
+    }
+</div>

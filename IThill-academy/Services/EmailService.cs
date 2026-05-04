@@ -1,7 +1,10 @@
 using System.Net;
 using System.Net.Mail;
+using IThill_academy.Data;
 using IThill_academy.DTOs;
+using IThill_academy.Models;
 using MailKit.Security;
+using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using MimeKit.Text;
 
@@ -10,10 +13,11 @@ namespace IThill_academy.Services;
 public class EmailService
 {
     private readonly IConfiguration _config;
-
-    public EmailService(IConfiguration config)
+    private readonly ApplicationDbContext _context;
+    public EmailService(IConfiguration config, ApplicationDbContext context)
     {
         _config = config;
+        _context = context;
     }
     
        
@@ -43,6 +47,29 @@ public class EmailService
         await smtp.AuthenticateAsync(fromAddress, _config["EmailSettings:Password"]);
         await smtp.SendAsync(email);
         await smtp.DisconnectAsync(true);
+    }
+    public async Task<bool> ResendConfirmationCode(string email)
+    {
+        var pending = await _context.PendingRegistrations.FirstOrDefaultAsync(p => p.Email == email);
+        if (pending == null) return false;
+
+        var newCode = new Random().Next(1000, 9999).ToString();
+
+        pending.Code = newCode;
+        pending.ExpiresAt = DateTime.UtcNow.AddMinutes(3);
+
+        await _context.SaveChangesAsync();
+
+        var emailDto = new EmailDto
+        {
+            To = email,
+            Subject = "Новый код подтверждения",
+            Body = $"Здравствуйте, {pending.FirstName}! Ваш новый код подтверждения: {newCode}"
+        };
+
+        await SendConfirmationCode(emailDto);
+
+        return true;
     }
 
     

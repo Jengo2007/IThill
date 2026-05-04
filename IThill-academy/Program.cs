@@ -56,7 +56,14 @@ builder.Services.AddAuthentication(options =>
                 context.Token = context.Request.Cookies["jwt"];
             }
             return Task.CompletedTask;
+        },OnChallenge = context =>
+        {
+            // Перехватываем 401 и делаем редирект на Login
+            context.HandleResponse();
+            context.Response.Redirect("/AccountMvc/Login");
+            return Task.CompletedTask;
         }
+    
     };
 });
 

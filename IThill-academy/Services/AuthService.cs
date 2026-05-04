@@ -27,18 +27,35 @@ public class AuthService
 
         var code = new Random().Next(1000, 9999).ToString();
 
-        var pending = new PendingRegistration
-        {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Password = _passwordHasher.HashPassword(null!, dto.Password),
-            PhoneNumber = dto.PhoneNumber,
-            Email = dto.Email,
-            Code = code,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(3)
-        };
+        // Проверяем, есть ли уже PendingRegistration для этого email
+        var pending = await _context.PendingRegistrations.FirstOrDefaultAsync(p => p.Email == dto.Email);
 
-        _context.PendingRegistrations.Add(pending);
+        if (pending != null)
+        {
+            // Обновляем существующую запись
+            pending.FirstName = dto.FirstName;
+            pending.LastName = dto.LastName;
+            pending.Password = _passwordHasher.HashPassword(null!, dto.Password);
+            pending.PhoneNumber = dto.PhoneNumber;
+            pending.Code = code;
+            pending.ExpiresAt = DateTime.UtcNow.AddMinutes(3);
+        }
+        else
+        {
+            // Создаём новую запись
+            pending = new PendingRegistration
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Password = _passwordHasher.HashPassword(null!, dto.Password),
+                PhoneNumber = dto.PhoneNumber,
+                Email = dto.Email,
+                Code = code,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(3)
+            };
+            _context.PendingRegistrations.Add(pending);
+        }
+
         await _context.SaveChangesAsync();
 
         var email = new EmailDto
@@ -52,13 +69,17 @@ public class AuthService
     }
 
 
+
     public async Task<bool> VerifyEmail(VerifyEmailDto dto)
     {
-        var pending=await _context.PendingRegistrations.FirstOrDefaultAsync(p=>p.Email==dto.Email&&p.Code==dto.Code);
+        var pending = await _context.PendingRegistrations.FirstOrDefaultAsync(p => p.Email == dto.Email);
         if (pending == null)
             throw new InvalidOperationException("Код недействителен или истёк");
-        if (pending.ExpiresAt < DateTime.UtcNow)
+
+        // Проверяем только последний код
+        if (pending.Code != dto.Code || pending.ExpiresAt < DateTime.UtcNow)
             return false;
+
         var student = new Student
         {
             FirstName = pending.FirstName,
@@ -70,12 +91,14 @@ public class AuthService
             CreatedAt = DateTime.UtcNow,
             Role = UserRole.Student
         };
+
         _context.Students.Add(student);
         _context.PendingRegistrations.Remove(pending);
 
         await _context.SaveChangesAsync();
         return true;
     }
+
 
     public async Task<string?> Login(LoginDto dto, JwtService jwtService)
     {

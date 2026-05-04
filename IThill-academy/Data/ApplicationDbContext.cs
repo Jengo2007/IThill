@@ -14,6 +14,14 @@ public class ApplicationDbContext:DbContext
     public DbSet<Enrollment> Enrollments { get; set; }
     public DbSet<EmailCode> EmailCodes { get; set; }
     public DbSet<PendingRegistration> PendingRegistrations { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
 
-
+        // Email уникален в PendingRegistrations
+        modelBuilder.Entity<PendingRegistration>()
+            .HasIndex(p => p.Email)
+            .IsUnique();
+    }
 }
