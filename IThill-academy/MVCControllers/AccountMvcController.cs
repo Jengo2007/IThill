@@ -46,7 +46,7 @@ public class AccountMvcController : Controller
         {
             await _authService.RegisterStudent(dto);
             _logger.LogInformation("Пользователь {Email} успешно зарегистрирован", dto.Email);
-            TempData["Message"] = "Регистрация прошла успешно";
+            TempData["Message"] = "\"На ваш email отправлен код подтверждения";
             return RedirectToAction("ConfirmEmail", new { email = dto.Email }); 
         }
         catch (InvalidOperationException ex)
@@ -78,8 +78,8 @@ public class AccountMvcController : Controller
             var result = await _authService.VerifyEmail(dto);
             if (result)
             {
-                _logger.LogInformation("Телефон подтвержден. Теперь можно войти.");
-                TempData["Message"] = "Телефон подтвержден. Теперь можно войти.";
+                _logger.LogInformation("Email подтвержден. Регистрация завершена.");
+                TempData["Message"] = "Регистрация прошла успешно! Теперь можно войти";
                 return RedirectToAction("Login");
             }
 
@@ -108,8 +108,8 @@ public class AccountMvcController : Controller
 
                 if (token == null)
                 {
-                    _logger.LogWarning("Телефон не подтвержден");
-                    TempData["Error"] = "Телефон не подтвержден.";
+                    _logger.LogWarning("Email не подтвержден");
+                    TempData["Error"] = "Email не подтвержден.";
                     return View(dto);
                 }
 
@@ -129,7 +129,7 @@ public class AccountMvcController : Controller
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "CoursesMvc");
                 }
                 
             }
