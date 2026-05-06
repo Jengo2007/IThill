@@ -5,6 +5,18 @@ Layout = "_LayoutAdmin";
 
 <h2 class="mb-3">Список студентов</h2>
 
+<div class="dropdown mb-3">
+    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        Сортировать
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" asp-action="Students" asp-route-sortOrder="newest">Новые пользователи</a></li>
+        <li><a class="dropdown-item" asp-action="Students" asp-route-sortOrder="name_asc">Имя ↑</a></li>
+        <li><a class="dropdown-item" asp-action="Students" asp-route-sortOrder="name_desc">Имя ↓</a></li>
+        <li><a class="dropdown-item" asp-action="Students" asp-route-sortOrder="date_asc">Дата ↑</a></li>
+        <li><a class="dropdown-item" asp-action="Students" asp-route-sortOrder="date_desc">Дата ↓</a></li>
+    </ul>
+</div>
 <table class="table table-striped">
     <thead>
     <tr>

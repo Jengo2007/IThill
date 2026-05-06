@@ -1,25 +1,75 @@
-@model IEnumerable<IThill_academy.Models.Enrollment>
+@model IThill_academy.Models.PagedResult<IThill_academy.Models.Enrollment>
 @{
-Layout = "_LayoutAdmin";
+    Layout = "_LayoutAdmin";
 }
 
-<h2>Записи студентов на курсы</h2>
+<h2 class="mb-3">Записи студентов на курсы</h2>
+
+<!-- Панель сортировки -->
+<div class="btn-group mb-3" role="group">
+    <a asp-action="Enrollments" asp-route-sortOrder="newest" class="btn @(ViewBag.CurrentSort == "newest" ? "btn-primary" : "btn-outline-secondary")">
+        Новые записи
+    </a>
+    <a asp-action="Enrollments" asp-route-sortOrder="oldest" class="btn @(ViewBag.CurrentSort == "oldest" ? "btn-primary" : "btn-outline-secondary")">
+        Старые записи
+    </a>
+    <a asp-action="Enrollments" asp-route-sortOrder="student_asc" class="btn @(ViewBag.CurrentSort == "student_asc" ? "btn-primary" : "btn-outline-secondary")">
+        Студент ↑
+    </a>
+    <a asp-action="Enrollments" asp-route-sortOrder="student_desc" class="btn @(ViewBag.CurrentSort == "student_desc" ? "btn-primary" : "btn-outline-secondary")">
+        Студент ↓
+    </a>
+    <a asp-action="Enrollments" asp-route-sortOrder="course_asc" class="btn @(ViewBag.CurrentSort == "course_asc" ? "btn-primary" : "btn-outline-secondary")">
+        Курс ↑
+    </a>
+    <a asp-action="Enrollments" asp-route-sortOrder="course_desc" class="btn @(ViewBag.CurrentSort == "course_desc" ? "btn-primary" : "btn-outline-secondary")">
+        Курс ↓
+    </a>
+</div>
+
+<!-- Таблица -->
 <table class="table table-striped">
     <thead>
-    <tr>
-        <th>Студент</th>
-        <th>Курс</th>
-        <th>Дата записи</th>
-    </tr>
+        <tr>
+            <th>Студент</th>
+            <th>Курс</th>
+            <th>Дата записи</th>
+        </tr>
     </thead>
     <tbody>
-    @foreach (var enrollment in Model)
-    {
-        <tr>
-            <td>@enrollment.Student.FirstName @enrollment.Student.LastName</td>
-            <td>@enrollment.Course.Title</td>
-            <td>@enrollment.CreatedAt.ToString("dd.MM.yyyy")</td>
-        </tr>
-    }
+        @foreach (var enrollment in Model.Items)
+        {
+            <tr>
+                <td>@enrollment.Student.FirstName @enrollment.Student.LastName</td>
+                <td>@enrollment.Course.Title</td>
+                <td>@enrollment.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+            </tr>
+        }
     </tbody>
 </table>
+
+<!-- Пагинация -->
+<nav>
+    <ul class="pagination">
+        @if (Model.Page > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Enrollments" asp-route-page="@(Model.Page - 1)" asp-route-pageSize="@Model.PageSize" asp-route-sortOrder="@ViewBag.CurrentSort">Назад</a>
+            </li>
+        }
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.Page ? "active" : "")">
+                <a class="page-link" asp-action="Enrollments" asp-route-page="@i" asp-route-pageSize="@Model.PageSize" asp-route-sortOrder="@ViewBag.CurrentSort">@i</a>
+            </li>
+        }
+
+        @if (Model.Page < Model.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Enrollments" asp-route-page="@(Model.Page + 1)" asp-route-pageSize="@Model.PageSize" asp-route-sortOrder="@ViewBag.CurrentSort">Вперёд</a>
+            </li>
+        }
+    </ul>
+</nav>

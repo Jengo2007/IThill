@@ -117,10 +117,33 @@ public class AuthService
         return await _context.Students.FirstOrDefaultAsync(s => s.Id == id);
     }
 
-    public async Task<PagedResult<Student>> GetAllStudent(int page,int pageSize)
+    public async Task<PagedResult<Student>> GetAllStudent(int page,int pageSize,string sortOrder)
     {
-        var totalcount=await _context.Students.CountAsync();
-        var students = await _context.Students.OrderBy(s => s.FirstName)
+        var query = _context.Students.AsQueryable();
+
+        switch (sortOrder)
+        {
+            case "name_asc":
+                query = query.OrderBy(s => s.FirstName);
+                break;
+            case "name_desc":
+                query = query.OrderByDescending(s => s.FirstName);
+                break;
+            case "date_asc":
+                query = query.OrderBy(s => s.CreatedAt);
+                break;
+            case "date_desc":
+                query = query.OrderByDescending(s => s.CreatedAt);
+                break;
+            case "newest":
+                query = query.OrderByDescending(s => s.CreatedAt); // новые сверху
+                break;
+            default:
+                query = query.OrderBy(s => s.LastName); // сортировка по умолчанию
+                break;
+        }
+        var totalCount=await query.CountAsync();
+        var students = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize).ToListAsync();
         
@@ -128,8 +151,8 @@ public class AuthService
         {
             Page = page,
             PageSize = pageSize,
-            TotalCount = totalcount,
-            TotalPages = (int)Math.Ceiling((double)totalcount / pageSize),
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
             Items = students
         };
     }

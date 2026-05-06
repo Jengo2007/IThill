@@ -14,19 +14,22 @@ public class AdminMvcController : Controller
     private readonly ApplicationDbContext _context;
     private readonly CourseService _courseService;
     private readonly AuthService _authService;
+    private readonly EnrollmentService _enrollmentService;
     private readonly ILogger<AdminMvcController> _logger;
 
-    public AdminMvcController(ApplicationDbContext context, CourseService courseService, ILogger<AdminMvcController> logger, AuthService authService)
+    public AdminMvcController(ApplicationDbContext context, CourseService courseService, ILogger<AdminMvcController> logger, AuthService authService, EnrollmentService enrollmentService)
     {
         _context = context;
         _courseService = courseService;
         _authService = authService;
         _logger = logger;
+        _enrollmentService = enrollmentService;
     }
 
-    public async Task<IActionResult> Students(int page=1,int pageSize=6)
+    public async Task<IActionResult> Students(int page=1,int pageSize=6,string sortOrder = "newest")
     {
-        var result = await _authService.GetAllStudent(page, pageSize);
+        var result = await _authService.GetAllStudent(page, pageSize, sortOrder);
+        ViewBag.CurrentSort = sortOrder;
         return View(result);
     }
 
@@ -36,12 +39,10 @@ public class AdminMvcController : Controller
         return View(courses);
     }
 
-    public async Task<IActionResult> Enrollments()
+    public async Task<IActionResult> Enrollments(int page = 1, int pageSize = 10, string sortOrder = "newest")
     {
-        var enrollments = await _context.Enrollments.
-            Include(e => e.Student).
-            Include(e => e.Course).
-            ToListAsync();
+        var enrollments = await _enrollmentService.GetAllEnrollments(page, pageSize, sortOrder);
+        ViewBag.CurrentSort = sortOrder;
         return View(enrollments);
     }
 

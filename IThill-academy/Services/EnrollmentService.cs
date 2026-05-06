@@ -44,24 +44,51 @@ public class EnrollmentService
             .Select(e => e.Course).ToListAsync();
     }
 
-        public async Task<PagedResult<Enrollment>> GetAllEnrollments(int page ,int pagesize)
+        public async Task<PagedResult<Enrollment>> GetAllEnrollments(int page ,int pageSize,string sortOrder)
     {
-        var totalCount = await _context.Enrollments.CountAsync();
-        var enrollments=await _context.Enrollments
-            .Include(e=>e.Student)
-            .Include(e=>e.Course)
-            .OrderBy(e=>e.CreatedAt)
-            .Skip((page - 1) * pagesize)
-            .Take(pagesize)
+        var query = _context.Enrollments
+            .Include(e => e.Student)
+            .Include(e => e.Course)
+            .AsQueryable();
+
+        switch (sortOrder)
+        {
+            case "student_asc":
+                query = query.OrderBy(e => e.Student.FirstName);
+                break;
+            case "student_desc":
+                query = query.OrderByDescending(e => e.Student.FirstName);
+                break;
+            case "course_asc":
+                query = query.OrderBy(e => e.Course.Title);
+                break;
+            case "course_desc":
+                query = query.OrderByDescending(e => e.Course.Title);
+                break;
+            case "newest":
+                query = query.OrderByDescending(e => e.CreatedAt);
+                break;
+            case "oldest":
+                query = query.OrderBy(e => e.CreatedAt);
+                break;
+            default:
+                query = query.OrderByDescending(e => e.CreatedAt); // новые сверху по умолчанию
+                break;
+        }
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
         return new PagedResult<Enrollment>
         {
             Page = page,
-            PageSize = pagesize,
+            PageSize = pageSize,
             TotalCount = totalCount,
-            TotalPages = (int)Math.Ceiling(totalCount / (double)pagesize),
-            Items = enrollments
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+            Items = items
         };
     }
 

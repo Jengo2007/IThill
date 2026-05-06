@@ -23,9 +23,9 @@ public class AdminController : Controller
 
 
     [HttpGet("AllStudents")]
-    public async Task<IActionResult> GetAllStudents(int page=1, int pageSize=4)
+    public async Task<IActionResult> GetAllStudents(int page=1, int pageSize=4,string sortOrder="newest")
     {
-        var result = await _authService.GetAllStudent(page, pageSize);
+        var result = await _authService.GetAllStudent(page, pageSize,sortOrder);
         return Ok(new
         {
             result.Page,
@@ -44,10 +44,10 @@ public class AdminController : Controller
     }
 
 
-    [HttpGet("Enrollments")]
-    public async Task<ActionResult> GetAllEnrollments(int page=1, int pageSize=4)
+    [HttpGet("AllEnrollments")]
+    public async Task<ActionResult> GetAllEnrollments(int page=1, int pageSize=4,string sortOrder="newest")
     {
-        var enrollments = await _enrollmentService.GetAllEnrollments(page , pageSize);
+        var enrollments = await _enrollmentService.GetAllEnrollments(page , pageSize,sortOrder);
         return Ok(new
         {
             enrollments.Page,
