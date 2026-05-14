@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IThill_academy.MVCControllers;
 
+[Authorize]
 public class CoursesMvcController : Controller
 {
     private readonly CourseService _courseService;

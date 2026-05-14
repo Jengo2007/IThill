@@ -26,23 +26,27 @@ public class AdminMvcController : Controller
         _enrollmentService = enrollmentService;
     }
 
-    public async Task<IActionResult> Students(int page=1,int pageSize=6,string sortOrder = "newest")
+    public async Task<IActionResult> Students(Guid guid,int page=1,int pageSize=6,string sortOrder = "newest")
     {
+        if (guid == Guid.Empty) return NotFound();
         var result = await _authService.GetAllStudent(page, pageSize, sortOrder);
         ViewBag.CurrentSort = sortOrder;
+        ViewBag.PageId = guid;
         return View(result);
     }
 
-    public async Task<IActionResult> Courses(int page=1,int pageSize=5)
+    public async Task<IActionResult> Courses(Guid guid,int page=1,int pageSize=5)
     {
         var courses = await _courseService.GetAllCourses( page,pageSize);
+        ViewBag.PageId = guid;
         return View(courses);
     }
 
-    public async Task<IActionResult> Enrollments(int page = 1, int pageSize = 10, string sortOrder = "newest")
+    public async Task<IActionResult> Enrollments(Guid guid,int page = 1, int pageSize = 10, string sortOrder = "newest")
     {
         var enrollments = await _enrollmentService.GetAllEnrollments(page, pageSize, sortOrder);
         ViewBag.CurrentSort = sortOrder;
+        ViewBag.PageId = guid;
         return View(enrollments);
     }
 

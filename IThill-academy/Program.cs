@@ -11,23 +11,23 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔹 строка подключения
 var connectionString = builder.Configuration.GetConnectionString("PostgresConnectionString");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// 🔹 сервисы
+
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CourseService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<EnrollmentService>();
 builder.Services.AddScoped<IPasswordHasher<Student>, PasswordHasher<Student>>();
 builder.Services.AddTransient<EmailService>();
+builder.Services.AddScoped<RefreshTokenService>();
 
-// 🔹 MVC
+
 builder.Services.AddControllersWithViews();
 
-// 🔹 JWT
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -69,7 +69,6 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// 🔹 Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -78,7 +77,7 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseRouting();
-
+app.UseMiddleware<JwtRefreshMiddleware>(); 
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -86,5 +85,9 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+    name: "admin",
+    pattern: "AdminMvc/{action}/{guid}",
+    defaults: new { controller = "AdminMvc" });
 
 app.Run();

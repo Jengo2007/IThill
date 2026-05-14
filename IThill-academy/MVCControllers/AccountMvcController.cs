@@ -13,13 +13,15 @@ public class AccountMvcController : Controller
     private readonly EmailService _emailService;
     private readonly JwtService _jwtService;
     private readonly ILogger<AccountMvcController> _logger;
+    private readonly RefreshTokenService _refreshTokenService;
 
-    public AccountMvcController(AuthService authService,JwtService jwtService,ILogger<AccountMvcController> logger,EmailService emailService)
+    public AccountMvcController(AuthService authService,JwtService jwtService,ILogger<AccountMvcController> logger,EmailService emailService,RefreshTokenService refreshTokenService)
     {
         _authService = authService;
         _jwtService = jwtService;
         _logger = logger;
         _emailService = emailService;
+        _refreshTokenService = refreshTokenService;
     }
     // GET
     public IActionResult Index()
@@ -99,47 +101,91 @@ public class AccountMvcController : Controller
         return View();
     }
 
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginDto dto)
+    [HttpPost]
+    public async Task<IActionResult> Login(LoginDto dto)
+    {
+        try
         {
-            try
+            var token = await _authService.Login(dto, _jwtService);
+
+            if (token == null)
             {
-                var token = await _authService.Login(dto, _jwtService);
-
-                if (token == null)
-                {
-                    _logger.LogWarning("Email не подтвержден");
-                    TempData["Error"] = "Email не подтвержден.";
-                    return View(dto);
-                }
-
-                TempData["Message"] = "Вход успешен!";
-                // Можно сохранить токен в cookie
-                Response.Cookies.Append("jwt", token, new CookieOptions
-                {
-                    HttpOnly = true,
-                    SameSite = SameSiteMode.Strict
-                });
-
-                var student = await _authService.GetByEmail(dto.Email);
-
-                if (student != null && student.Role == UserRole.Admin)
-                {
-                    return RedirectToAction("Students", "AdminMvc");
-                }
-                else
-                {
-                    return RedirectToAction("Index", "CoursesMvc");
-                }
-                
-            }
-            catch (InvalidOperationException ex)
-            {
-                TempData["Error"] = ex.Message;
+                _logger.LogWarning("Email не подтвержден");
+                TempData["Error"] = "Email не подтвержден.";
                 return View(dto);
             }
-            
+
+            TempData["Message"] = "Вход успешен!";
+
+            // Access‑токен в защищённые куки
+            Response.Cookies.Append("jwt", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,                  // только HTTPS
+                SameSite = SameSiteMode.Strict, // защита от CSRF
+                Expires = DateTime.UtcNow.AddMinutes(15) // короткий срок жизни
+            });
+
+            // Генерация Refresh‑токена
+            var student = await _authService.GetByEmail(dto.Email);
+            var refreshToken = _refreshTokenService.GenerateRefreshToken(student.Id.ToString());
+
+            Response.Cookies.Append("refreshToken", refreshToken.Token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = refreshToken.Expires
+            });
+
+            // Редирект по ролям
+            if (student != null && student.Role == UserRole.Admin)
+            {
+                return RedirectToAction("Students", "AdminMvc", new { guid = Guid.NewGuid() });
+            }
+            else
+            {
+                return RedirectToAction("Index", "CoursesMvc");
+            }
         }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return View(dto);
+        }
+    }
+    [HttpPost]
+    public async Task<IActionResult> Refresh()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
+        if (string.IsNullOrEmpty(refreshToken))
+            return Unauthorized();
+
+        // достаём токен из базы
+        var storedToken = _refreshTokenService.GetToken(refreshToken);
+        if (storedToken == null || !_refreshTokenService.ValidateRefreshToken(refreshToken, storedToken.UserId))
+            return Unauthorized();
+
+        // асинхронно получаем студента по Id
+        var student = await _authService.GetStudentById(Guid.Parse(storedToken.UserId));
+        if (student == null)
+            return Unauthorized();
+
+        // генерируем новый Access‑токен
+        var newAccessToken = _jwtService.GenerateAccessToken(student);
+
+        Response.Cookies.Append("jwt", newAccessToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddMinutes(15)
+        });
+
+        return Ok(new { message = "Access token refreshed" });
+    }
+
+
         [HttpGet]
         public async Task<IActionResult> ResendCode(string email)
         {
@@ -168,7 +214,15 @@ public class AccountMvcController : Controller
         [HttpPost]
         public IActionResult Logout()
         {
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (!string.IsNullOrEmpty(refreshToken))
+            {
+                _refreshTokenService.RevokeRefreshToken(refreshToken);
+            }
+
             Response.Cookies.Delete("jwt");
+            Response.Cookies.Delete("refreshToken");
+
             return RedirectToAction("Login", "AccountMvc");
         }
 

@@ -109,7 +109,7 @@ public class AuthService
         var result = _passwordHasher.VerifyHashedPassword(student, student.Password, dto.Password);
         if (result != PasswordVerificationResult.Success) throw new InvalidOperationException("Неверный пароль!");
         
-        var token = jwtService.GenerateToken(student);
+        var token = jwtService.GenerateAccessToken(student);
         return token;
     }
     public async Task<Student?> GetStudentById(Guid id)

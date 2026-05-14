@@ -15,14 +15,15 @@ public class JwtService
         _config = config;
     }
 
-    public string GenerateToken(Student student)
+    public string GenerateAccessToken(Student student)
     {
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, student.Id.ToString()),
-            new Claim("phoneNumber", student.PhoneNumber),
+            new Claim("phoneNumber", student.PhoneNumber ?? string.Empty),
             new Claim("email", student.Email),
-            new Claim(ClaimTypes.Role, student.Role.ToString()) // ключевой момент!
+            new Claim(ClaimTypes.Role, student.Role.ToString()),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // уникальный идентификатор токена
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
@@ -32,11 +33,10 @@ public class JwtService
             issuer: _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddDays(1),
+            expires: DateTime.UtcNow.AddMinutes(15), // короткий срок жизни
             signingCredentials: creds
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-
 }
