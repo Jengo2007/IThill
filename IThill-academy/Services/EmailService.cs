@@ -72,5 +72,26 @@ public class EmailService
         return true;
     }
 
-    
+    public async Task SendEmailAsync(string to, string subject, string body)
+    {
+        var fromAddress = _config["EmailSettings:From"];
+        if (string.IsNullOrEmpty(fromAddress))
+            throw new InvalidOperationException("EmailSettings:From is not configured");
+
+        var email = new MimeMessage();
+        email.From.Add(MailboxAddress.Parse(fromAddress));
+        email.To.Add(MailboxAddress.Parse(to));
+        email.Subject = subject;
+        email.Body = new TextPart(TextFormat.Plain) { Text = body };
+
+        using var smtp = new MailKit.Net.Smtp.SmtpClient();
+        await smtp.ConnectAsync(_config["EmailSettings:SmtpServer"],
+            int.Parse(_config["EmailSettings:Port"]!),
+            SecureSocketOptions.StartTls);
+
+        await smtp.AuthenticateAsync(fromAddress, _config["EmailSettings:Password"]);
+        await smtp.SendAsync(email);
+        await smtp.DisconnectAsync(true);
+    }
+
 }

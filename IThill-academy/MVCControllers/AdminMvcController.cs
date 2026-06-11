@@ -142,6 +142,4 @@ public class AdminMvcController : Controller
             return BadRequest($"Ошибка при удалении курса: {ex.Message}");
         }
     }
-
-        
 }

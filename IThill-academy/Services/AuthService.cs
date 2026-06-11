@@ -170,6 +170,46 @@ public class AuthService
     {
         return await _context.Students.FirstOrDefaultAsync(s => s.Email == email);
     }
+    
+    
+    // 1. Генерация токена и отправка письма
+    public async Task<string> GenerateResetPasswordTokenAsync(string email)
+    {
+        var user = await _context.Students.FirstOrDefaultAsync(u => u.Email == email);
+        if (user == null)
+            throw new InvalidOperationException("Пользователь не найден");
+
+        user.ResetPasswordToken = Guid.NewGuid().ToString();
+        user.ResetPasswordExpiry = DateTime.UtcNow.AddHours(1);
+
+        await _context.SaveChangesAsync();
+
+        return user.ResetPasswordToken;
+    }
+
+    // 2. Проверка токена
+    public async Task<Student> ValidateResetTokenAsync(string token)
+    {
+        var user = await _context.Students.FirstOrDefaultAsync(u =>
+            u.ResetPasswordToken == token && u.ResetPasswordExpiry > DateTime.UtcNow);
+
+        if (user == null)
+            throw new InvalidOperationException("Токен недействителен или истёк");
+
+        return user;
+    }
+
+    // 3. Сброс пароля
+    public async Task ResetPasswordAsync(string token, string newPassword)
+    {
+        var user = await ValidateResetTokenAsync(token);
+
+        user.Password = _passwordHasher.HashPassword(user, newPassword);
+        user.ResetPasswordToken = null;
+        user.ResetPasswordExpiry = null;
+
+        await _context.SaveChangesAsync();
+    }
 
     
 }

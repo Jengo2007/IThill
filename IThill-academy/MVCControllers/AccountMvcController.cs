@@ -226,5 +226,63 @@ public class AccountMvcController : Controller
             return RedirectToAction("Login", "AccountMvc");
         }
 
-        
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            try
+            {
+                var token = await _authService.GenerateResetPasswordTokenAsync(email);
+
+                var resetLink = Url.Action("ResetPassword", "AccountMvc",
+                    new { token = token }, protocol: Request.Scheme);
+
+                await _emailService.SendEmailAsync(email, "Сброс пароля",
+                    $"Для сброса пароля перейдите по ссылке: {resetLink}");
+
+                ViewBag.Message = "Ссылка для сброса пароля отправлена на ваш email.";
+                return View();
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View();
+            }
+        }   
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(string token)
+        {
+            try
+            {
+                var user = await _authService.ValidateResetTokenAsync(token);
+                ViewBag.Token = token;
+                return View();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string token, string password)
+        {
+            try
+            {
+                await _authService.ResetPasswordAsync(token, password);
+                return RedirectToAction("Login", "AccountMvc");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 }

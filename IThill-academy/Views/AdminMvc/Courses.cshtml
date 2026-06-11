@@ -190,7 +190,7 @@
             var id = $(this).data("id");
             if (confirm("Вы уверены, что хотите удалить курс?")) {
                 $.ajax({
-                    url: '@Url.Action("DeleteCourse", "AdminMvc")',
+                    url: '@Url.Action("DeleteCourses", "AdminMvc")',
                     type: 'POST',
                     data: { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
                     success: function (result) {

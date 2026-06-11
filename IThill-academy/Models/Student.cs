@@ -29,5 +29,8 @@ public class Student
     public DateTime CreatedAt { get; set; }
     public UserRole Role { get; set; } = UserRole.Student;
     public ICollection<EmailCode> EmailCodes { get; set; }
+    
+    public string? ResetPasswordToken { get; set; }
+    public DateTime? ResetPasswordExpiry { get; set; }
 
 }
