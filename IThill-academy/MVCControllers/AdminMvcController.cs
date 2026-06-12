@@ -1,5 +1,6 @@
 using IThill_academy.Data;
 using IThill_academy.DTOs;
+using IThill_academy.Interfaces;
 using IThill_academy.Models;
 using IThill_academy.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -12,12 +13,12 @@ namespace IThill_academy.MVCControllers;
 public class AdminMvcController : Controller
 {
     private readonly ApplicationDbContext _context;
-    private readonly CourseService _courseService;
-    private readonly AuthService _authService;
-    private readonly EnrollmentService _enrollmentService;
+    private readonly ICourseService _courseService;
+    private readonly IAuthService _authService;
+    private readonly IEnrollmentService _enrollmentService;
     private readonly ILogger<AdminMvcController> _logger;
 
-    public AdminMvcController(ApplicationDbContext context, CourseService courseService, ILogger<AdminMvcController> logger, AuthService authService, EnrollmentService enrollmentService)
+    public AdminMvcController(ApplicationDbContext context, ICourseService courseService, ILogger<AdminMvcController> logger, IAuthService authService, IEnrollmentService enrollmentService)
     {
         _context = context;
         _courseService = courseService;

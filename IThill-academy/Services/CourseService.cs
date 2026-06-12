@@ -1,12 +1,13 @@
 using IThill_academy.Controllers;
 using IThill_academy.Data;
 using IThill_academy.DTOs;
+using IThill_academy.Interfaces;
 using IThill_academy.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace IThill_academy.Services;
 
-public class CourseService
+public class CourseService:ICourseService
 {
     private readonly ApplicationDbContext _context;
 
@@ -169,7 +170,7 @@ public class CourseService
 
     
 
-    public async Task<List<Course>> Getcourses(string? search, string? sort)
+    public async Task<List<Course>> GetCourses(string? search, string? sort)
     {
         var query = _context.Courses.AsQueryable();
         if (!string.IsNullOrEmpty(search))

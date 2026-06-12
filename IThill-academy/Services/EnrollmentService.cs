@@ -1,10 +1,11 @@
 using IThill_academy.Data;
+using IThill_academy.Interfaces;
 using IThill_academy.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace IThill_academy.Services;
 
-public class EnrollmentService
+public class EnrollmentService: IEnrollmentService
 {
     private readonly ApplicationDbContext _context;
 

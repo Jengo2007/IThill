@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Mail;
 using IThill_academy.Data;
 using IThill_academy.DTOs;
+using IThill_academy.Interfaces;
 using IThill_academy.Models;
 using MailKit.Security;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ using MimeKit.Text;
 
 namespace IThill_academy.Services;
 
-public class EmailService
+public class EmailService:IEmailService
 {
     private readonly IConfiguration _config;
     private readonly ApplicationDbContext _context;

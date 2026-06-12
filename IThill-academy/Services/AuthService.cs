@@ -1,13 +1,14 @@
 using IThill_academy.Auth;
 using IThill_academy.Data;
 using IThill_academy.DTOs;
+using IThill_academy.Interfaces;
 using IThill_academy.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace IThill_academy.Services;
 
-public class AuthService
+public class AuthService: IAuthService
 {
     private readonly ApplicationDbContext _context;
     private readonly IPasswordHasher<Student> _passwordHasher;
@@ -100,7 +101,7 @@ public class AuthService
     }
 
 
-    public async Task<string?> Login(LoginDto dto, JwtService jwtService)
+    public async Task<string?> Login(LoginDto dto, IJwtService jwtService)
     {
         var student = await _context.Students.FirstOrDefaultAsync(s => s.Email == dto.Email||s.Password == dto.Password);
         if (student == null) throw new InvalidOperationException("Неверный email или email не подтвержден или пароль неверный");

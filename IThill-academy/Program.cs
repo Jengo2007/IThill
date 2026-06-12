@@ -1,6 +1,7 @@
 using System.Text;
 using IThill_academy.Auth;
 using IThill_academy.Data;
+using IThill_academy.Interfaces;
 using IThill_academy.Models;
 using IThill_academy.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,6 +24,18 @@ builder.Services.AddScoped<EnrollmentService>();
 builder.Services.AddScoped<IPasswordHasher<Student>, PasswordHasher<Student>>();
 builder.Services.AddTransient<EmailService>();
 builder.Services.AddScoped<RefreshTokenService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped < IEmailService, EmailService>();
+builder.Services.AddScoped < IEnrollmentService, EnrollmentService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+
+
+
+
+
+
 
 
 builder.Services.AddControllersWithViews();

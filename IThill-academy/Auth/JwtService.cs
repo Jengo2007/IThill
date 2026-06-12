@@ -1,12 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using IThill_academy.Interfaces;
 using IThill_academy.Models;
 using Microsoft.IdentityModel.Tokens;
 
 namespace IThill_academy.Auth;
 
-public class JwtService
+public class JwtService: IJwtService
 {
     private readonly IConfiguration _config;
 

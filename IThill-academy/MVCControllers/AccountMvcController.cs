@@ -1,5 +1,6 @@
 using IThill_academy.Auth;
 using IThill_academy.DTOs;
+using IThill_academy.Interfaces;
 using IThill_academy.Models;
 using IThill_academy.Services;
 using Microsoft.AspNetCore.Identity;
@@ -9,13 +10,13 @@ namespace IThill_academy.MVCControllers;
 
 public class AccountMvcController : Controller
 {
-    private readonly AuthService _authService;
-    private readonly EmailService _emailService;
-    private readonly JwtService _jwtService;
+    private readonly IAuthService _authService;
+    private readonly IEmailService _emailService;
+    private readonly IJwtService _jwtService;
     private readonly ILogger<AccountMvcController> _logger;
-    private readonly RefreshTokenService _refreshTokenService;
+    private readonly IRefreshTokenService _refreshTokenService;
 
-    public AccountMvcController(AuthService authService,JwtService jwtService,ILogger<AccountMvcController> logger,EmailService emailService,RefreshTokenService refreshTokenService)
+    public AccountMvcController(IAuthService authService,IJwtService jwtService,ILogger<AccountMvcController> logger,IEmailService emailService,IRefreshTokenService refreshTokenService)
     {
         _authService = authService;
         _jwtService = jwtService;

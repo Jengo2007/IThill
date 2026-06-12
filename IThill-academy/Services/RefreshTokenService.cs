@@ -1,9 +1,10 @@
 using IThill_academy.Data;
+using IThill_academy.Interfaces;
 using IThill_academy.Models;
 
 namespace IThill_academy.Services;
 
-public class RefreshTokenService
+public class RefreshTokenService: IRefreshTokenService
 {
     private readonly ApplicationDbContext _context;
 
